@@ -39,7 +39,8 @@ module SpectreClient
             source_url: source_url,
             fuzz_level: fuzz_level,
             highlight_colour: highlight_colour,
-            crop_area: options[:crop_area]
+            crop_area: options[:crop_area],
+            diff_threshold: options[:diff_threshold]
           }
         }
       )
