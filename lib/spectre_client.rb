@@ -6,7 +6,7 @@ module SpectreClient
   class Client
     attr_reader :run_id
 
-    def initialize(url_base, project_name, suite_name, existing_run_id = nil)
+    def initialize(project_name, suite_name, url_base, existing_run_id = nil)
       @url_base = url_base
       @project_name = project_name
       @suite_name = suite_name
