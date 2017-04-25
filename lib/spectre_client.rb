@@ -4,8 +4,14 @@ require "json"
 
 module SpectreClient
   class Client
-    def initialize(project_name, suite_name, url_base)
+    attr_reader :run_id
+
+    def initialize(url_base, run_id = nil)
       @url_base = url_base
+      @run_id = run_id
+    end
+
+    def create_test_run(project_name, suite_name)
       request = RestClient::Request.execute(
         method: :post,
         url: "#{@url_base}/runs",
