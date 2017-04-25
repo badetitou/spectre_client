@@ -6,23 +6,11 @@ module SpectreClient
   class Client
     attr_reader :run_id
 
-    def initialize(url_base, run_id = nil)
+    def initialize(url_base, project_name, suite_name, existing_run_id = nil)
       @url_base = url_base
-      @run_id = run_id
-    end
-
-    def create_test_run(project_name, suite_name)
-      request = RestClient::Request.execute(
-        method: :post,
-        url: "#{@url_base}/runs",
-        timeout: 120,
-        payload: {
-          project: project_name,
-          suite: suite_name
-        }
-      )
-      response = JSON.parse(request.to_str)
-      @run_id = response['id']
+      @project_name = project_name
+      @suite_name = suite_name
+      @run_id = existing_run_id || create_test_run
     end
 
     def submit_test(options = {})
@@ -51,6 +39,22 @@ module SpectreClient
         }
       )
       JSON.parse(request.to_str, symbolize_names: true)
+    end
+
+    private
+
+    def create_test_run
+      request = RestClient::Request.execute(
+        method: :post,
+        url: "#{@url_base}/runs",
+        timeout: 120,
+        payload: {
+          project: @project_name,
+          suite: @suite_name
+        }
+      )
+      response = JSON.parse(request.to_str)
+      @run_id = response['id']
     end
   end
 end
