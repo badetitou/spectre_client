@@ -6,16 +6,16 @@ module SpectreClient
   class Client
     attr_reader :run_id
 
-    def initialize(project_name, suite_name, url_base, existing_run_id = nil)
+    def initialize(project_name, suite_name, url_base, external_id = nil)
       @url_base = url_base
       @project_name = project_name
       @suite_name = suite_name
-      @run_id = existing_run_id || create_test_run
+      @run_id = create_or_get_test_run(external_id)
     end
 
     def submit_test(options = {})
-      source_url =  options[:source_url] || ''
-      fuzz_level =  options[:fuzz_level] || ''
+      source_url = options[:source_url] || ''
+      fuzz_level = options[:fuzz_level] || ''
       highlight_colour = options[:highlight_colour] || ''
 
       request = RestClient::Request.execute(
@@ -43,15 +43,17 @@ module SpectreClient
 
     private
 
-    def create_test_run
+    def create_or_get_test_run(external_id = nil)
+      payload = {
+        project: @project_name,
+        suite: @suite_name
+      }
+      payload[:external_id] = external_id if external_id
       request = RestClient::Request.execute(
         method: :post,
         url: "#{@url_base}/runs",
         timeout: 120,
-        payload: {
-          project: @project_name,
-          suite: @suite_name
-        }
+        payload: payload
       )
       response = JSON.parse(request.to_str)
       @run_id = response['id']
