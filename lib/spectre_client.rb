@@ -49,14 +49,27 @@ module SpectreClient
         suite: @suite_name
       }
       payload[:external_id] = external_id if external_id
-      request = RestClient::Request.execute(
-        method: :post,
-        url: "#{@url_base}/runs",
-        timeout: 120,
-        payload: payload
-      )
-      response = JSON.parse(request.to_str)
+
+      lock_file = File.join(Dir.tmpdir, "specte_client#{external_id}.lock")
+      response = with_global_lock(lock_file) do
+        request = RestClient::Request.execute(
+          method: :post,
+          url: "#{@url_base}/runs",
+          timeout: 120,
+          payload: payload
+        )
+        JSON.parse(request.to_str)
+      end
       @run_id = response['id']
+    end
+
+    def with_global_lock(file_path)
+      fh = File.open(file_path, File::CREAT)
+      fh.flock(File::LOCK_EX)
+      yield
+    ensure
+      fh.flock(File::LOCK_UN)
+      fh.close
     end
   end
 end
