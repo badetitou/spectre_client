@@ -28,12 +28,11 @@ module SpectreClient
           source_url: source_url,
           fuzz_level: fuzz_level,
           highlight_colour: highlight_colour,
-          crop_area: options[:crop_area],
           diff_threshold: options[:diff_threshold]
         }
       }
       payload[:test][:crop_area] = options[:crop_area] if options[:crop_area]
-      
+
       request = RestClient::Request.execute(
         method: :post,
         url: "#{@url_base}/tests",
