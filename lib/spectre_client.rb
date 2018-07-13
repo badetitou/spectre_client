@@ -18,25 +18,28 @@ module SpectreClient
       fuzz_level = options[:fuzz_level] || ''
       highlight_colour = options[:highlight_colour] || ''
 
+      payload = {
+        test: {
+          run_id: @run_id,
+          name: options[:name],
+          browser: options[:browser],
+          size: options[:size],
+          screenshot: options[:screenshot],
+          source_url: source_url,
+          fuzz_level: fuzz_level,
+          highlight_colour: highlight_colour,
+          crop_area: options[:crop_area],
+          diff_threshold: options[:diff_threshold]
+        }
+      }
+      payload[:test][:crop_area] = options[:crop_area] if options[:crop_area]
+      
       request = RestClient::Request.execute(
         method: :post,
         url: "#{@url_base}/tests",
         timeout: 120,
         multipart: true,
-        payload: {
-          test: {
-            run_id: @run_id,
-            name: options[:name],
-            browser: options[:browser],
-            size: options[:size],
-            screenshot: options[:screenshot],
-            source_url: source_url,
-            fuzz_level: fuzz_level,
-            highlight_colour: highlight_colour,
-            crop_area: options[:crop_area],
-            diff_threshold: options[:diff_threshold]
-          }
-        }
+        payload: payload
       )
       JSON.parse(request.to_str, symbolize_names: true)
     end
